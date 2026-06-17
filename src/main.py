@@ -1,30 +1,33 @@
 # src/main.py
 # PURPOSE: Main entry point for Virtual Mouse.
-# Phase 2: Integrates HandDetector and FPSCounter.
+# Phase 3: Adds cursor movement with smoothing.
 
 import cv2
 import sys
 import os
 
-# Add project root to Python path.
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.hand_detector import HandDetector
-from src.utils.fps_counter  import FPSCounter
-from config.settings        import (
+from src.core.hand_detector     import HandDetector
+from src.core.mouse_controller  import MouseController
+from src.utils.fps_counter      import FPSCounter
+from src.utils.smoother         import Smoother
+from config.settings import (
     CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT,
-    WINDOW_NAME, TEXT_COLOR, FPS_COLOR
+    WINDOW_NAME, TEXT_COLOR, FPS_COLOR,
+    FRAME_REDUCTION, SMOOTHING_FACTOR
 )
 
 
 def main():
-    print("Virtual Mouse — Phase 2: Hand Detection")
-    print("Show your hand to the camera!")
+    print("Virtual Mouse — Phase 3: Cursor Movement")
+    print("Move your INDEX finger to control the cursor.")
     print("Press Q to quit.\n")
 
-    # Initialize modules — each is a single responsibility.
     detector    = HandDetector()
+    mouse       = MouseController()
     fps_counter = FPSCounter()
+    smoother    = Smoother(smoothing_factor=SMOOTHING_FACTOR)
 
     cap = cv2.VideoCapture(CAMERA_INDEX)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,  FRAME_WIDTH)
@@ -39,27 +42,42 @@ def main():
         if not success:
             continue
 
-        # Mirror the frame.
         frame = cv2.flip(frame, 1)
-
-        # Step 1: Detect and draw hand landmarks.
         frame = detector.find_hands(frame)
-
-        # Step 2: Get landmark pixel positions.
         landmarks = detector.get_landmarks(frame)
 
-        # Step 3: Show index fingertip position if hand detected.
-        if landmarks:
-            tip = landmarks[8]  # Index fingertip
-            cv2.putText(
-                frame,
-                f"Index Tip → ({tip[1]}, {tip[2]})",
-                (10, 65),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7, TEXT_COLOR, 2
-            )
+        # Draw the "active zone" rectangle so you can SEE where to move
+        # your hand for full screen coverage. Purely visual — for learning.
+        cv2.rectangle(
+            frame,
+            (FRAME_REDUCTION, FRAME_REDUCTION),
+            (FRAME_WIDTH - FRAME_REDUCTION, FRAME_HEIGHT - FRAME_REDUCTION),
+            (255, 0, 0),  # Blue box
+            2
+        )
 
-        # Step 4: Display FPS.
+        if landmarks:
+            # Landmark 8 = index fingertip.
+            index_x, index_y = landmarks[8][1], landmarks[8][2]
+
+            # Smooth the raw coordinate to eliminate jitter.
+            smooth_x, smooth_y = smoother.smooth(index_x, index_y)
+
+            # Move the actual OS cursor.
+            mouse.move_to(smooth_x, smooth_y)
+
+            # Visual feedback: draw a circle at the smoothed fingertip position.
+            cv2.circle(frame, (int(smooth_x), int(smooth_y)), 10, (0, 255, 0), cv2.FILLED)
+
+            cv2.putText(
+                frame, f"Index: ({index_x}, {index_y})",
+                (10, 65), cv2.FONT_HERSHEY_SIMPLEX, 0.7, TEXT_COLOR, 2
+            )
+        else:
+            # If hand disappears, reset the smoother so the cursor doesn't
+            # jump erratically when the hand reappears at a new position.
+            smoother.reset()
+
         fps_text = fps_counter.get_fps_text()
         cv2.putText(frame, fps_text, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, FPS_COLOR, 2)

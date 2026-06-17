@@ -20,3 +20,14 @@ FPS_COLOR         = (0, 255, 255)  # Yellow — color of FPS counter (BGR)
 
 # --- WINDOW ---
 WINDOW_NAME       = "Virtual Mouse"
+
+# --- CURSOR MOVEMENT SETTINGS ---
+FRAME_REDUCTION   = 100    # Margin (px) defining the "active zone" inside the frame
+SMOOTHING_FACTOR  = 5      # Higher = smoother but slower response (try 4-8)
+
+# --- SCREEN RESOLUTION (auto-detected in mouse_controller.py, kept here for reference) ---
+# We don't hardcode screen width/height — PyAutoGUI detects it automatically.
+
+# --- SAFETY ---
+PYAUTOGUI_FAILSAFE = True   # Keep True — moving mouse to (0,0) stops the program safely
+PYAUTOGUI_PAUSE     = 0     # No artificial delay between PyAutoGUI actions (we control timing ourselves)
