@@ -96,3 +96,31 @@ class MouseController:
             pyautogui.moveTo(screen_x, screen_y, duration=0)
         except pyautogui.FailSafeException:
             print("WARNING: Cursor hit screen corner (0,0). Fail-safe triggered.")
+
+    def left_click(self):
+        """Performs a single left mouse click at the current cursor position."""
+        pyautogui.click(button='left')
+
+    def right_click(self):
+        """Performs a single right mouse click at the current cursor position."""
+        pyautogui.click(button='right')
+
+    def double_click(self):
+        """Performs a double left click at the current cursor position."""
+        pyautogui.doubleClick()
+
+    def mouse_down(self):
+        """Presses and HOLDS the left mouse button (start of a drag)."""
+        pyautogui.mouseDown(button='left')
+
+    def mouse_up(self):
+        """Releases the left mouse button (end of a drag)."""
+        pyautogui.mouseUp(button='left')
+
+    def scroll(self, amount):
+        """
+        Scrolls the screen. Positive amount = scroll up, negative = scroll down.
+        amount is multiplied by SCROLL_SENSITIVITY for a responsive feel.
+        """
+        from config.settings import SCROLL_SENSITIVITY
+        pyautogui.scroll(int(amount * SCROLL_SENSITIVITY))

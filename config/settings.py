@@ -31,3 +31,11 @@ SMOOTHING_FACTOR  = 5      # Higher = smoother but slower response (try 4-8)
 # --- SAFETY ---
 PYAUTOGUI_FAILSAFE = True   # Keep True — moving mouse to (0,0) stops the program safely
 PYAUTOGUI_PAUSE     = 0     # No artificial delay between PyAutoGUI actions (we control timing ourselves)
+
+# --- GESTURE SETTINGS ---
+CLICK_DISTANCE_THRESHOLD = 35     # px — thumb-index distance below this = "pinched"
+CLICK_COOLDOWN           = 0.4    # seconds — minimum time between separate clicks
+DOUBLE_CLICK_WINDOW      = 0.4    # seconds — max time between 2 clicks to count as double
+RIGHT_CLICK_HOLD_TIME    = 0.3    # seconds — how long the gesture must be held
+SCROLL_SENSITIVITY       = 4      # multiplier — higher = faster scrolling
+SCROLL_DEAD_ZONE         = 5      # px — minimum hand movement before scroll triggers
