@@ -13,3 +13,5 @@ Webcam → OpenCV → MediaPipe → Gesture Engine → PyAutoGUI → Screen
 - main.py            : orchestrates all modules in a loop
 
 ## Used in: All phases (living document, update as project grows)
+
+## .\venv\Scripts\Activate.ps1  
